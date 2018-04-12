@@ -10,12 +10,11 @@ defmodule Statesman do
   end
 
   def get_prices(agent) do
-    cryptos()
-    |> Enum.each(fn(crypto) ->
-      Task.async(get_price(crypto))
-      |> Task.await()
-    end)
-
+    tasks = cryptos()
+      |> Enum.each(fn(crypto) ->
+        Task.async(get_price(crypto))
+      end)
+    Task.yield_many(tasks)
   end
 
   defp get_price(crypto) do
@@ -26,6 +25,8 @@ defmodule Statesman do
   end
 
   defp cryptos do
-    ["btc", "eth", "xrp", "bch", "ltc", "ada", "xlm", "neo", "xmr", "miota"]
+    ["btc", "eth", "xrp", "bch", "ltc", "ada", "xlm", "neo", "xmr", "miota", "dash",
+     "xem", "etc", "qtum", "xvg", "lsk", "btg", "zec", "nano", "steem", "wan", "bcn",
+     "sc", "bts", "strat", "dcr", "doge", "waves", "bcd", "kmd", "ardr", "hsr", "ark"]
   end
 end
