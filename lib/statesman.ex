@@ -1,5 +1,4 @@
 defmodule Statesman do
-  import HTTPoison
   def run do
     case Agent.start_link(fn -> [] end, name: __MODULE__) do
       {:ok, agent} ->
@@ -11,13 +10,19 @@ defmodule Statesman do
   end
 
   def get_prices(agent) do
-    cryptos
-    |> Enum.each(fn(crypto)-> get_price(crypto) end)
+    cryptos()
+    |> Enum.each(fn(crypto) ->
+      Task.async(get_price(crypto))
+      |> Task.await()
+    end)
+
   end
 
   defp get_price(crypto) do
-    response = HTTPoison.get!("https://coinbin.org/#{crypto}")
-    IO.inspect(response)
+    fn ->
+      HTTPoison.get!("https://coinbin.org/#{crypto}")
+      |> IO.inspect()
+    end
   end
 
   defp cryptos do
