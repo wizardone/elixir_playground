@@ -1,24 +1,45 @@
 defmodule CustomProcess do
 
   def receive do
-    IO.puts("Receiving")
     receive do
       "WTF" -> "WTF"
       "FOO" -> "FOO"
-      _ -> "Some other argument"
-    after
-      1_000 -> "Nothing received"
+      _ -> IO.puts("Some other argument")
     end
+    receive()
   end
 
   def send(msg) do
     send(self(), msg)
-    IO.puts("after")
   end
 end
 
 defmodule Sender do
   def start do
     pid = spawn_link(CustomProcess, :send, ["WTF"])
+  end
+end
+
+defmodule Countdown do
+
+  def timer do
+    receive do
+      :start ->
+        send(self(), {:tick, 5})
+      {:tick, 0} ->
+        IO.puts("The end")
+        exit(:done)
+      {:tick, value} ->
+        IO.puts(value)
+        Process.sleep(1000)
+        send(self(), {:tick, value - 1})
+    end
+
+    timer()
+  end
+
+  def watch do
+    pid = spawn_link(&timer/0)
+    send(pid, :start)
   end
 end
