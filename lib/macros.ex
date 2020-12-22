@@ -1,9 +1,7 @@
 defmodule Playground.Macros do
-
-  defmacro basic(arg1, arg2) do
+  defmacro basic(expression) do
     quote do
-      unquote(print())
-      unquote(arg1 + arg2)
+      unquote(expression)
     end
   end
 
@@ -12,17 +10,17 @@ defmodule Playground.Macros do
       defmodule unquote(Module.concat([Playground, name])) do
         @after_compile __MODULE__
         def print do
-          IO.puts "I'm inside #{unquote(Playground)}.#{unquote(name)}!"
+          IO.puts("I'm inside #{unquote(Playground)}.#{unquote(name)}!")
         end
 
         def __after_compile__(env, _) do
-          IO.puts "I've just compiled, bitches"
+          IO.puts("I've just compiled")
         end
       end
     end
   end
 
   def print do
-    IO.puts "I'm in print"
+    IO.puts("I'm in print")
   end
 end
